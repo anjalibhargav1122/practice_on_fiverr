@@ -1,15 +1,21 @@
- 
 const mongoose = require("mongoose")
 
-const connectdb = () => {
+const dbConnection =()=>{
+    try{
+        mongoose.connect('mongodb://localhost:27017/fiverr')
+        .then(()=>{
+            console.log("DataBase Connected successfully");
+            
+        })
+        .catch(()=>{
+            console.log(" Error in DataBase Connection");
 
-  mongoose.connect("mongodb://localhost:27017/Fiverr")
-    .then(() => {
-      console.log("DB is connecting succesfully")
-    })
-    .catch((err) => {
-      console.log("Error in connecting DB", err)
-    })
+        })
+    }
+    catch(err){
+        console.log(`Error in Catch Block DataBase Connection ${err}`);
+
+    }
 }
 
-module.exports = connectdb
+module.exports=dbConnection

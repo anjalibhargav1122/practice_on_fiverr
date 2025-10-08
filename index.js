@@ -1,26 +1,22 @@
-const express = require("express");
-const dotenv = require("dotenv");
-const connectdb = require("./src/config/connection_db");
-const reviewRouter = require("./src/routes/orders");
-const CustomError = require("./src/utils/error_handler");
 
 
- 
+const express = require('express')
+const router = require('./src/routes/productRouter')
+const dbConnection = require('./src/config/connection_db')
+const reviewRouter = require('./src/routes/orders')
 
-dotenv.config()
-const app = express();
+// const router  = require('./src/routes/userRoutes')
+const app = express()
 
-// DB connection
-connectdb()
-
-app.use(express.json());
- 
+app.use(express.json())
+dbConnection()
 app.use("/api/auth",reviewRouter);
- 
+app.use('/fiverr/api',router)
 
-app.use( CustomError);
 
-const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
-});
+app.listen(3002,()=>{
+    console.log('Server running on port 3002');
+    
+})
+
+
