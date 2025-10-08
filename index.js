@@ -5,7 +5,7 @@ const router = require('./src/routes/productRouter')
 const dbConnection = require('./src/config/connection_db')
 const reviewRouter = require('./src/routes/orders')
 
-// const router  = require('./src/routes/userRoutes')
+
 const app = express()
 
 app.use(express.json())
