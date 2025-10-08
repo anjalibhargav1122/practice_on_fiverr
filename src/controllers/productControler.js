@@ -1,5 +1,5 @@
 const Product = require("../models/ProductModel") 
-const productValidation = require("../utils/zodProduct-validation") 
+const productValidation = require("../validators/zodProduct-validation") 
 
 
 
