@@ -2,7 +2,7 @@ const CustomError = require('../utils/error_handler')
 
 
 const User = require('../models/Usermodel')
-const zodUserValidation = require('../utils/zodUserValidation')
+const zodUserValidation = require('../validators/zodUserValidation')
 
 exports.registerUser = async (req,res,next)=>{
 
