@@ -35,7 +35,7 @@ exports.createReview = async (req, res) => {
   } catch (error) {
 
     const statusCode = error.statusCode || 500;
-    res.status(statusCode).json({
+   return res.status(statusCode).json({
       success: false,
       message: error.message || "Internal Server Error",
     });
@@ -53,7 +53,7 @@ exports.getallReview = async (req, res) => {
   } catch (error) {
 
     const statusCode = error.statusCode || 500;
-    res.status(statusCode).json({
+    return res.status(statusCode).json({
       success: false,
       message: error.message || "Internal Server Error",
     });
