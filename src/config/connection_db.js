@@ -2,7 +2,7 @@ const mongoose = require("mongoose")
 
 const dbConnection =()=>{
     try{
-        mongoose.connect('mongodb://localhost:27017/fiverr')
+        mongoose.connect(process.env.MONGO_URI)
         .then(()=>{
             console.log("DataBase Connected successfully");
             
