@@ -1,22 +1,32 @@
-const Review = require("../models/orderReview");
+const Review = require("../models/reviewModel");
 const statusCode = require('http-status-codes');
 const CustomError = require("../utils/error_handler");
+const zodUserValidation = require("../validators/zodReviewValidation")
 exports.createReview = async (req, res) => {
   try {
-    const { orderId, rating, comment } = req.body;
-    const buyerId = req.user._id;
 
-    const existingReview = await Review.findOne({ order: orderId });
-    if (!existingReview) {
-      throw new CustomError("Review on this order is already exists",statusCode.BAD_REQUEST)
+    const validateData = zodUserValidation.safeParse(req.body);
+    if (!validateData.success) {
+      const message = validateData.error.issues
+        .map((err) => `${err.path.join(".")} - ${err.message}`)
+        .join(", ");
+      throw new CustomError(message, statusCode.BAD_REQUEST);
+    }
+    const { order, rating, comments } = validateData.data;
+    const buyer = req.body.buyer;
+    const existingReview = await Review.findOne({ order: order, buyer: buyer });
+
+    if (existingReview) {
+      throw new CustomError("Review on this order is already exists", statusCode.BAD_REQUEST)
     }
 
     const createReview = await Review.create({
-      order: orderId,
-      buyer: buyerId,
+      order,
+      buyer,
       rating,
-      comment
+      comments
     })
+
     return res.status(statusCode.CREATED).json({
       message: "Review created successfully",
       createReview
@@ -24,7 +34,11 @@ exports.createReview = async (req, res) => {
 
   } catch (error) {
 
-    throw new(CustomError("Server Error",statusCode.INTERNAL_SERVER_ERROR))
+    const statusCode = error.statusCode || 500;
+    res.status(statusCode).json({
+      success: false,
+      message: error.message || "Internal Server Error",
+    });
   }
 
 }
@@ -35,8 +49,16 @@ exports.getallReview = async (req, res) => {
 
     const findallReview = await Review.find()
 
-    res.status(statusCode.OK).json({ message: "All Review Fetch Succesfully", findallReview })
+    return res.status(statusCode.OK).json({ message: "All Review Fetch Succesfully", findallReview })
   } catch (error) {
-    res.status(statusCode.INTERNAL_SERVER_ERROR).json({ message: "Server Error", error })
+
+    const statusCode = error.statusCode || 500;
+    res.status(statusCode).json({
+      success: false,
+      message: error.message || "Internal Server Error",
+    });
+
   }
 }
+
+
