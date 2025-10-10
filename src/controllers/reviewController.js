@@ -2,7 +2,7 @@ const Review = require("../models/reviewModel");
 const statusCode = require('http-status-codes');
 const CustomError = require("../utils/error_handler");
 const zodUserValidation = require("../validators/zodReviewValidation")
-exports.createReview = async (req, res) => {
+exports.addReview = async (req, res) => {
   try {
 
     const validateData = zodUserValidation.safeParse(req.body);
@@ -12,17 +12,18 @@ exports.createReview = async (req, res) => {
         .join(", ");
       throw new CustomError(message, statusCode.BAD_REQUEST);
     }
-    const { order, rating, comments } = validateData.data;
-    const buyer = req.body.buyer;
-    const existingReview = await Review.findOne({ order: order, buyer: buyer });
+    const { order_id, rating, comments, user_id, service_id } = validateData.data;
+
+    const existingReview = await Review.findOne({ order_id, user_id, service_id });
 
     if (existingReview) {
       throw new CustomError("Review on this order is already exists", statusCode.BAD_REQUEST)
     }
 
     const createReview = await Review.create({
-      order,
-      buyer,
+      order_id,
+      user_id,
+      service_id,
       rating,
       comments
     })
@@ -35,7 +36,7 @@ exports.createReview = async (req, res) => {
   } catch (error) {
 
     const statusCode = error.statusCode || 500;
-   return res.status(statusCode).json({
+    return res.status(statusCode).json({
       success: false,
       message: error.message || "Internal Server Error",
     });
@@ -44,12 +45,12 @@ exports.createReview = async (req, res) => {
 }
 
 
-exports.getallReview = async (req, res) => {
+exports.getserviceReview = async (req, res) => {
   try {
+    const { service_id } = req.params
+    const review = await Review.find({ service_id })
 
-    const findallReview = await Review.find({buyer:buyer})
-
-    return res.status(statusCode.OK).json({ message: "All Review Fetch Succesfully", findallReview })
+    return res.status(statusCode.OK).json({ message: "All Review Fetch Succesfully", review })
   } catch (error) {
 
     const statusCode = error.statusCode || 500;
@@ -62,12 +63,12 @@ exports.getallReview = async (req, res) => {
 }
 
 
-exports.getbuyerReview = async (req, res) => {
+exports.getuserReview = async (req, res) => {
   try {
-const {buyer} = req.params
-    const findbuyerReview = await Review.find({buyer:buyer})
+    const { user_id } = req.params
+    const review = await Review.find({ user_id })
 
-    return res.status(statusCode.OK).json({ message: "All buyer Review Fetch Succesfully", findbuyerReview })
+    return res.status(statusCode.OK).json({ message: "All User Review Fetch Succesfully", review })
   } catch (error) {
 
     const statusCode = error.statusCode || 500;
@@ -78,12 +79,12 @@ const {buyer} = req.params
 
   }
 }
-exports.getselllerReview = async (req, res) => {
+exports.getorderReview = async (req, res) => {
   try {
-const {seller} = req.params
-    const findsellerReview = await Review.find({ seller:seller})
+    const { order_id } = req.params
+    const review = await Review.find({ order_id })
 
-    return res.status(statusCode.OK).json({ message: "All  sellerReview Fetch Succesfully", findsellerReview })
+    return res.status(statusCode.OK).json({ message: "Review Fetch Succesfully", review })
   } catch (error) {
 
     const statusCode = error.statusCode || 500;

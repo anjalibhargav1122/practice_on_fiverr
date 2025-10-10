@@ -7,11 +7,11 @@ const reportSchema = new mongoose.Schema(
       ref: "User",
       required: [true, "User ID is required"],
     },
-    // service: {
-    //   type: mongoose.Schema.Types.ObjectId,
-    //   ref: "Service",
-    //   required: [true, "Service ID is required"],
-    // },
+    service: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Service",
+      required: [true, "Service ID is required"],
+    },
     reason: {
       type: String,
       required: [true, "Reason is required"],

@@ -1,20 +1,24 @@
 const mongoose = require("mongoose")
-const revieworder = new mongoose.Schema({
-  order: {
-    type: mongoose.Schema.Types.ObjectId, ref: "Order",
-    //  required: true,
-      unique: true
+const reviewSchema = new mongoose.Schema({
+  order_id: {
+    type: mongoose.Schema.Types.ObjectId, 
+    ref: "Order",
+    required: true
   },
-  buyer: {
+  user_id: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "User",
-    // required: true,
-    unique: true
+    required: true 
   },
+  service_id: { 
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Service",
+    required: true },
+
   rating: { type: Number, required: true, min: 1, max: 5 },
   comments: { type: String }
 })
 
-    revieworder.index({ order: 1, buyer: 1 }, { unique: true });
+reviewSchema.index({ order_id: 1, user_id:1 }, { unique: true });
 
-module.exports = mongoose.model('Review', revieworder);
+module.exports = mongoose.model('Review', reviewSchema);
