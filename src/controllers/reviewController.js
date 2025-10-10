@@ -47,9 +47,43 @@ exports.createReview = async (req, res) => {
 exports.getallReview = async (req, res) => {
   try {
 
-    const findallReview = await Review.find()
+    const findallReview = await Review.find({buyer:buyer})
 
     return res.status(statusCode.OK).json({ message: "All Review Fetch Succesfully", findallReview })
+  } catch (error) {
+
+    const statusCode = error.statusCode || 500;
+    return res.status(statusCode).json({
+      success: false,
+      message: error.message || "Internal Server Error",
+    });
+
+  }
+}
+
+
+exports.getbuyerReview = async (req, res) => {
+  try {
+const {buyer} = req.params
+    const findbuyerReview = await Review.find({buyer:buyer})
+
+    return res.status(statusCode.OK).json({ message: "All buyer Review Fetch Succesfully", findbuyerReview })
+  } catch (error) {
+
+    const statusCode = error.statusCode || 500;
+    return res.status(statusCode).json({
+      success: false,
+      message: error.message || "Internal Server Error",
+    });
+
+  }
+}
+exports.getselllerReview = async (req, res) => {
+  try {
+const {seller} = req.params
+    const findsellerReview = await Review.find({ seller:seller})
+
+    return res.status(statusCode.OK).json({ message: "All  sellerReview Fetch Succesfully", findsellerReview })
   } catch (error) {
 
     const statusCode = error.statusCode || 500;
