@@ -268,3 +268,90 @@ exports.passwordChange = async (req, res) => {
     });
   }
 };
+// forget-password
+
+exports.forgetPassword = async (req,res)=>{
+  try {
+    const {email} = req.body;
+
+    if(!email){
+      throw new CustomError("Email is Not valid",statusCode.BAD_REQUEST)
+
+    }
+
+    const user = await User.findOne({email})
+     if(!user){
+      throw new CustomError("This Email is Not Registered",statusCode.BAD_REQUEST)
+
+    }
+
+
+
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+    user.otp = otp;
+    user.otpExpire = Date.now()+10*60*1000
+    await user.save({validateBeforeSave:false})
+
+    return res.status(statusCode.OK).json({
+      success:true,
+      message:"Otp send successfully",
+      otp
+    })
+    
+  } catch (error) {
+     const statusCode = error.statusCode || 500;
+    return res.status(statusCode).json({
+      success: false,
+      message: error.message || "Internal Server Error",
+    });
+  
+  }
+}
+
+//reset password
+
+exports.resetPassword = async (req,res)=>{
+  try {
+    const{email,otp,newPassword,confirmNewPassword} = req.body
+    if(!email || !otp || !newPassword ||!confirmNewPassword){
+      throw new CustomError("All fields are Required",statusCode.BAD_REQUEST)
+    }
+    if(newPassword !== confirmNewPassword){
+      throw new CustomError("New password and ConfirmNewPassword Should Be same",statusCode.BAD_REQUEST)
+    }
+
+    const user = await User.findOne({
+      email,
+      otp,
+      otpExpire:{ $gt: Date.now() }
+
+    })
+
+    if(!user){
+      throw new CustomError("Invalid user/otp",statusCode.BAD_REQUEST)
+    }
+
+const hashedPassword = await bcrypt.hash(newPassword,10)
+user.password = hashedPassword
+
+ user.otp = undefined;
+    user.otpExpire = undefined;
+
+await user.save()
+
+
+
+return res.status(statusCode.OK).json({
+      success:true,
+      message:"Password Reset Successfully",
+      
+    })  } catch (error) {
+     const statusCode = error.statusCode || 500;
+    return res.status(statusCode).json({
+      success: false,
+      message: error.message || "Internal Server Error",
+    });
+  
+  
+  }
+}

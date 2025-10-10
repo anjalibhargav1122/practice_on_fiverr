@@ -1,4 +1,6 @@
 const mongoose = require('mongoose')
+const { type } = require('../validators/zodUserValidation')
+const { string } = require('zod')
 
 const userSchema = new mongoose.Schema({
     name:{
@@ -27,6 +29,12 @@ const userSchema = new mongoose.Schema({
     },
     mobileNo:{
         type:String
+    },
+    otp:{
+        type:string
+    },
+    otpExpire:{
+        type:Date
     }
 
 },
