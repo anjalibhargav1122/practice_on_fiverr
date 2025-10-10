@@ -1,5 +1,6 @@
 const Order = require('../models/orders');
 const { orderValidationSchema } = require('../utils/zodOrder-validation');
+const statusCode  = require('http-status-codes');
 
 
 const createError = (message, status = 400) => {
@@ -28,4 +29,21 @@ const createOrder = async (req, res) => {
   }
 };
 
-module.exports = { createOrder };
+const getOrder = async (req, res) => {
+    try{
+        const order = await Order.find()
+        return res.status(statusCode.OK).json({
+            success: true,
+            message: "order successfully fetched",
+            order
+        })
+    }  catch(err){
+        return res.status(statusCode.INTERNAL_SERVER_ERROR).json({
+            success: false,
+            message: err.message
+        })
+    }
+
+}
+
+module.exports = { createOrder, getOrder};

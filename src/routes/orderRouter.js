@@ -1,11 +1,10 @@
 const express = require('express');
+const { createOrder, getOrder} = require('../controllers/ordersController');
+const router = express.Router();
 
-const router = require('../models/orders');
 
-const app = express();
+router.post('/addOrder',createOrder);
+router.get('/getOrder', getOrder)
 
-app.use(express.json());
-app.use('/api/orders', router);
 
-module.exports = app;
-
+module.exports = router;
