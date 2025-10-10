@@ -1,22 +1,33 @@
-const Review = require("../models/orderReview");
+const Review = require("../models/reviewModel");
 const statusCode = require('http-status-codes');
 const CustomError = require("../utils/error_handler");
-exports.createReview = async (req, res) => {
+const zodUserValidation = require("../validators/zodReviewValidation")
+exports.addReview = async (req, res) => {
   try {
-    const { orderId, rating, comment } = req.body;
-    const buyerId = req.user._id;
 
-    const existingReview = await Review.findOne({ order: orderId });
-    if (!existingReview) {
-      throw new CustomError("Review on this order is already exists",statusCode.BAD_REQUEST)
+    const validateData = zodUserValidation.safeParse(req.body);
+    if (!validateData.success) {
+      const message = validateData.error.issues
+        .map((err) => `${err.path.join(".")} - ${err.message}`)
+        .join(", ");
+      throw new CustomError(message, statusCode.BAD_REQUEST);
+    }
+    const { order_id, rating, comments, user_id, service_id } = validateData.data;
+
+    const existingReview = await Review.findOne({ order_id, user_id, service_id });
+
+    if (existingReview) {
+      throw new CustomError("Review on this order is already exists", statusCode.BAD_REQUEST)
     }
 
     const createReview = await Review.create({
-      order: orderId,
-      buyer: buyerId,
+      order_id,
+      user_id,
+      service_id,
       rating,
-      comment
+      comments
     })
+
     return res.status(statusCode.CREATED).json({
       message: "Review created successfully",
       createReview
@@ -24,19 +35,65 @@ exports.createReview = async (req, res) => {
 
   } catch (error) {
 
-    throw new(CustomError("Server Error",statusCode.INTERNAL_SERVER_ERROR))
+    const statusCode = error.statusCode || 500;
+    return res.status(statusCode).json({
+      success: false,
+      message: error.message || "Internal Server Error",
+    });
   }
 
 }
 
 
-exports.getallReview = async (req, res) => {
+exports.getserviceReview = async (req, res) => {
   try {
+    const { service_id } = req.params
+    const review = await Review.find({ service_id })
 
-    const findallReview = await Review.find()
-
-    res.status(statusCode.OK).json({ message: "All Review Fetch Succesfully", findallReview })
+    return res.status(statusCode.OK).json({ message: "All Review Fetch Succesfully", review })
   } catch (error) {
-    res.status(statusCode.INTERNAL_SERVER_ERROR).json({ message: "Server Error", error })
+
+    const statusCode = error.statusCode || 500;
+    return res.status(statusCode).json({
+      success: false,
+      message: error.message || "Internal Server Error",
+    });
+
   }
 }
+
+
+exports.getuserReview = async (req, res) => {
+  try {
+    const { user_id } = req.params
+    const review = await Review.find({ user_id })
+
+    return res.status(statusCode.OK).json({ message: "All User Review Fetch Succesfully", review })
+  } catch (error) {
+
+    const statusCode = error.statusCode || 500;
+    return res.status(statusCode).json({
+      success: false,
+      message: error.message || "Internal Server Error",
+    });
+
+  }
+}
+exports.getorderReview = async (req, res) => {
+  try {
+    const { order_id } = req.params
+    const review = await Review.find({ order_id })
+
+    return res.status(statusCode.OK).json({ message: "Review Fetch Succesfully", review })
+  } catch (error) {
+
+    const statusCode = error.statusCode || 500;
+    return res.status(statusCode).json({
+      success: false,
+      message: error.message || "Internal Server Error",
+    });
+
+  }
+}
+
+
