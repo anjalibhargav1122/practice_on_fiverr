@@ -7,7 +7,10 @@ const orderValidationSchema = z.object({
   product: z.string().min(24, "Product ID valid ObjectId hona chahiye"),
   quantity: z.number().min(1, "Quantity kam se kam 1 honi chahiye"),
   price: z.number().min(0, "Price positive number hona chahiye"),
-  status: z.enum(['pending', 'in_progress', 'completed', 'cancelled']).optional()
+  status: z.enum(['pending', 'in_progress', 'completed', 'cancelled']).optional(),
+  payment_status: z.enum(['paid', 'unpaid']).optional(),
+  orderdate: z.date().optional(),
+  
 });
 
 module.exports = { orderValidationSchema };
