@@ -1,7 +1,8 @@
-const  z  = require("zod") ;
-const sendToken  = require("../utils/jwtToken");
-const bcrypt = require('bcrypt') ;
+const z = require("zod");
+const sendToken = require("../utils/jwtToken");
+const bcrypt = require("bcrypt");
 const CustomError = require("../utils/error_handler");
+const statusCode = require('http-status-codes')
 
 const User = require("../models/Usermodel");
 const zodUserValidation = require("../validators/zodUserValidation");
@@ -15,23 +16,22 @@ exports.registerUser = async (req, res) => {
       const message = validateData.error.issues
         .map((err) => `${err.path.join(".")} - ${err.message}`)
         .join(", ");
-      throw new CustomError(message, 400);
+      throw new CustomError(message, statusCode.BAD_REQUEST);
     }
 
     const existingUser = await User.findOne({ email: validateData.data.email });
 
     if (existingUser) {
-      throw new CustomError("Email Alredy Exists", 400);
+      throw new CustomError("Email Alredy Exists", statusCode.BAD_REQUEST);
     }
 
-     const hashedPassword = await bcrypt.hash(validateData.data.password, 10);
+    const hashedPassword = await bcrypt.hash(validateData.data.password, 10);
 
     // 🧩 Step 4: Create user with hashed password
     const user = await User.create({
       ...validateData.data,
       password: hashedPassword,
     });
-
 
     return res.status(201).json({
       success: true,
@@ -51,13 +51,13 @@ exports.registerUser = async (req, res) => {
 exports.getAllUser = async (req, res) => {
   try {
     const getAllUser = await User.find();
-    return res.status(201).json({
+    return res.status(statusCode.OK).json({
       success: true,
       message: "User get successfuly",
       getAllUser,
     });
   } catch (error) {
-    return res.status(400).json({
+    return res.status(statusCode.BAD_REQUEST).json({
       success: false,
       message: "Error in Catch Block Of getAllUser",
       error,
@@ -76,13 +76,13 @@ exports.getOneUser = async (req, res) => {
       throw new CustomError("User Not Found", 400);
     }
 
-    return res.status(201).json({
+    return res.status(statusCode.OK).json({
       success: true,
       message: "User get successfuly",
       getOneUser,
     });
   } catch (error) {
-    return res.status(400).json({
+    return res.status(statusCode.BAD_REQUEST).json({
       success: false,
       message: "Error in Catch Block Of getOneUser",
       error,
@@ -95,14 +95,14 @@ exports.updateUser = async (req, res) => {
   try {
     const { id } = req.params;
     if (!id) {
-      throw new CustomError("This User Doesn't Exists", 400);
+      throw new CustomError("This User Doesn't Exists", statusCode.BAD_REQUEST);
     }
     const validateData = zodUserValidation.partial().safeParse(req.body);
     if (!validateData.success) {
       const message = validateData.error.issues
         .map((err) => `${err.path.join(".")} - ${err.message}`)
         .join(", ");
-      throw new CustomError(message, 400);
+      throw new CustomError(message, statusCode.BAD_REQUEST);
     }
     const updateData = validateData.data;
 
@@ -111,7 +111,7 @@ exports.updateUser = async (req, res) => {
       const existingUser = await User.findOne({ email: updateData.email });
 
       if (existingUser && existingUser._id.toString() !== id) {
-        throw new CustomError("Email already exists", 400);
+        throw new CustomError("Email already exists", statusCode.BAD_REQUEST);
       }
     }
 
@@ -120,10 +120,10 @@ exports.updateUser = async (req, res) => {
     });
 
     if (!updatedUser) {
-      throw new CustomError("User not found", 404);
+      throw new CustomError("User not found", statusCode.BAD_REQUEST);
     }
 
-    return res.status(201).json({
+    return res.status(statusCode.OK).json({
       success: true,
       message: "User Updated Successfully",
       updatedUser,
@@ -140,18 +140,15 @@ exports.updateUser = async (req, res) => {
 
 exports.deleteUser = async (req, res) => {
   try {
-    const { id } = req.params;
-    if (!id) {
-      throw new CustomError("This User Doesn't Exists", 400);
-    }
+    const id = req.params.id;
 
-    const deleteUser = await User.findOneAndDelete(id);
+    const deleteUser = await User.findByIdAndDelete(id);
 
     if (!deleteUser) {
-      throw new CustomError("User not found", 404);
+      throw new CustomError("User not found", statusCode.BAD_REQUEST);
     }
 
-    return res.status(201).json({
+    return res.status(statusCode.OK).json({
       success: true,
       message: "User Deleted Successfully",
       deleteUser,
@@ -165,7 +162,6 @@ exports.deleteUser = async (req, res) => {
   }
 };
 //login
-
 
 // 🧩 Define login validation schema (using Zod)
 const zodLoginValidation = z.object({
@@ -181,7 +177,7 @@ exports.loginUser = async (req, res) => {
       const message = validateData.error.issues
         .map((err) => `${err.path.join(".")} - ${err.message}`)
         .join(", ");
-      throw new CustomError(message, 400);
+      throw new CustomError(message, statusCode.BAD_REQUEST);
     }
 
     const { email, password } = validateData.data;
@@ -189,18 +185,17 @@ exports.loginUser = async (req, res) => {
     // 🧠 Step 2: Check if user exists
     const user = await User.findOne({ email }).select("+password");
     if (!user) {
-      throw new CustomError("Invalid email or password", 401);
+      throw new CustomError("Invalid email or password", statusCode.BAD_REQUEST);
     }
 
     // 🧠 Step 3: Compare password
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
-      throw new CustomError("Invalid email or password", 401);
+      throw new CustomError("Invalid email or password", statusCode.BAD_REQUEST);
     }
 
     // 🧠 Step 4: Send JWT Token in cookie
-    sendToken(user, 200, res, "Login successful");
-
+    sendToken(user, statusCode.OK, res, "Login successful");
   } catch (error) {
     const statusCode = error.statusCode || 500;
     return res.status(statusCode).json({
@@ -222,11 +217,10 @@ exports.logoutUser = async (req, res) => {
     });
 
     // 🧠 Step 2: Send response
-    return res.status(200).json({
+    return res.status(statusCode.OK).json({
       success: true,
       message: "User logged out successfully 🚪",
     });
-
   } catch (error) {
     const statusCode = error.statusCode || 500;
     return res.status(statusCode).json({
@@ -238,41 +232,39 @@ exports.logoutUser = async (req, res) => {
 
 // password change
 
-exports.passwordChange = async (req,res)=>
-{
+exports.passwordChange = async (req, res) => {
   try {
-    const {oldPassword, newPassword, confirmNewPassword} = req.body
-    if(!oldPassword || !newPassword || !confirmNewPassword){
-      throw new CustomError("All fields are required",400)
+    const { oldPassword, newPassword, confirmNewPassword } = req.body;
+    if (!oldPassword || !newPassword || !confirmNewPassword) {
+      throw new CustomError("All fields are required", statusCode.BAD_REQUEST);
     }
-    if(newPassword !== confirmNewPassword){
-      throw new CustomError("New Password and Confirm password Doesn't match",400)
+    if (newPassword !== confirmNewPassword) {
+      throw new CustomError(
+        "New Password and Confirm password Doesn't match",
+        400
+      );
     }
-    const user = await User.findById(req.user._id).select("+password")
+    const user = await User.findById(req.user._id).select("+password");
 
-    const isMatched = await bcrypt.compare(oldPassword, user.password)
-    if(!isMatched){
-            throw new CustomError("Old Password is incorrect",400)
-
+    const isMatched = await bcrypt.compare(oldPassword, user.password);
+    if (!isMatched) {
+      throw new CustomError("Old Password is incorrect", statusCode.BAD_REQUEST);
     }
 
-    user.password = await bcrypt.hash(newPassword,10)
+    user.password = await bcrypt.hash(newPassword, 10);
 
-    await user.save()
+    await user.save();
 
-    return res.status(200).json({
-      success:true,
-      message:"Password changed successfully",
-      user
-    })
-
-
-
+    return res.status(statusCode.OK).json({
+      success: true,
+      message: "Password changed successfully",
+      user,
+    });
   } catch (error) {
-     const statusCode = error.statusCode || 500;
+    const statusCode = error.statusCode || 500;
     return res.status(statusCode).json({
       success: false,
       message: error.message || "Internal Server Error",
     });
   }
-  }
+};
