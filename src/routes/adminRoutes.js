@@ -4,9 +4,9 @@ const adminController =  require("../controllers/adminController");
 
 
 
-adminRouter.get("/users", adminController.getAllUser)
+adminRouter.get("/users/:email", adminController.getAdminUserByEmail)
 
-adminRouter.put("/user/:userId", adminController.updateUserRole)
+adminRouter.put("/user/:userId", adminController.updateAdminUserRole)
 
 
 

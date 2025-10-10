@@ -4,32 +4,42 @@ const CustomError = require("../utils/error_handler");
 
 
 
-exports.getAllUser = async (req,res) => {
-   try{
-      const users = await User.findOne();
-      if(!users){
-        throw new CustomError("user not found",statusCode.NOT_FOUND)
-      }
-      return res.status(200).json(users);
-   } catch (err) {
-          return res.status(400).json({
+exports.getAdminUserByEmail = async (req, res) => {
+  try {
+    const { email } = req.params;
 
-            success:false,
-            message:"err in catch of getallusers",
-            err
-          });
+    if (!email) {
+      throw new CustomError("Email is required", statusCode.BAD_REQUEST);
+    }
 
-   }
-}
+    const user = await User.findOne({ email: email });
+
+    if (!user) {
+      throw new CustomError("User not found with this email", statusCode.NOT_FOUND);
+    }
+
+    return res.status(statusCode.OK).json({
+      success: true,
+      data: user,
+    });
+
+  } catch (err) {
+    return res.status(400).json({
+      success: false,
+      message: "err in catch of getUserByEmail",
+      err
+    })
+  }
+};
 
 
 
-exports.updateUserRole = async (req, res) => {
+exports.updateAdminUserRole = async (req, res) => {
   try {
     const { userId } = req.params;
     const { role } = req.body;
 
-    
+
     if (!role || !["buyer", "seller"].includes(role)) {
       return res.status(400).json(new CustomError("Role is required and must be 'buyer' or 'seller'", 400));
     }
@@ -37,7 +47,7 @@ exports.updateUserRole = async (req, res) => {
     const user = await User.findByIdAndUpdate(
       userId,
       { role },
-      { new: true } 
+      { new: true }
     );
 
     if (!user) {
