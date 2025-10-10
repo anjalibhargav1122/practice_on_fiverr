@@ -7,17 +7,19 @@ const reviewRouter = require('./src/routes/orders')
 const userrouter = require('./src/routes/userRoutes')
 const adminRouter = require("./src/routes/adminRoutes")
 const adminServiceRoutes = require("./src/routes/adminServiceRoutes")
+const CustomError = require('./src/utils/error_handler')
 
-// const router  = require('./src/routes/userRoutes')
 const app = express()
 
 app.use(express.json())
+
 dbConnection()
 app.use("/api/auth",reviewRouter);
 app.use('/fiverr/api',router)
 app.use('/fiverr/api',userrouter)
 app.use("/fiverrAdmin/api",adminRouter)
 app.use("/fiverrService/api",adminServiceRoutes)
+
 
 
 app.listen(3002,()=>{

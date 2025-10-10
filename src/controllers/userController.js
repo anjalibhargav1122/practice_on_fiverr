@@ -13,7 +13,7 @@ exports.registerUser = async (req, res) => {
       throw new CustomError(message, 400);
     }
 
-    const existingUser = await User.findOne({ email: req.body.email });
+    const existingUser = await User.findOne({ email: validateData.data.email });
 
 
     if (existingUser) {
@@ -23,14 +23,14 @@ exports.registerUser = async (req, res) => {
 
     const user = await User.create(validateData.data);
 
-    res.status(201).json({
+   return res.status(201).json({
       success: true,
       message: "User Registered Successfully",
       user,
     });
   } catch (error) {
     const statusCode = error.statusCode || 500; // ✅ fallback
-    res.status(statusCode).json({
+    return res.status(statusCode).json({
       success: false,
       message: error.message || "Internal Server Error",
     });
