@@ -24,7 +24,7 @@ exports.getAdminOrderById = async (req,res) => {
     });
 
     } catch (err) {
-        return res.status(statusCode.BAD_REQUEST).json({
+        return res.status(err.statusCode || statusCode.INTERNAL_SERVER_ERROR).json({
             success:false,
             message:err.message || "Error in getAdminOrderById"
           });
@@ -34,7 +34,7 @@ exports.getAdminOrderById = async (req,res) => {
 
 
 
-exports.updateAdminOrder = async (req,res) => {
+exports.updateAdminOrderById = async (req,res) => {
     try {
         const { order_id } = req.params;
         const { status, adminNotes } = req.body;
@@ -58,7 +58,7 @@ exports.updateAdminOrder = async (req,res) => {
     });
 
     } catch (err) {
-        return res.status(statusCode.BAD_REQUEST).json({
+        return res.status(err.statusCode || statusCode.INTERNAL_SERVER_ERROR).json({
             success: false,
             message:err.message || "Error in updateAdminOrder"
         })

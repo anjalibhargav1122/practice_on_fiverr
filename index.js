@@ -3,6 +3,12 @@ const router = require('./src/routes/productRouter')
 const dbConnection = require('./src/config/connection_db')
 const userrouter = require('./src/routes/userRoutes')
 const reviewRouter = require('./src/routes/reviewRoute')
+const adminRouter = require('./src/routes/adminRoutes')
+const adminServiceRoutes = require('./src/routes/adminServiceRoutes')
+const adminOrderRoutes = require('./src/routes/adminOrderRoutes')
+const adminAnalyticsRoutes = require('./src/routes/adminAnalyticsRoutes')
+
+
 const cookieParser = require('cookie-parser')
 require('dotenv').config()
 
@@ -17,6 +23,8 @@ app.use('/fiverr/api',router)
 app.use('/fiverr/api',userrouter)
 app.use("/fiverrAdmin/api",adminRouter)
 app.use("/fiverrService/api",adminServiceRoutes)
+app.use('/fiverrOrder/api',adminOrderRoutes)
+app.use("/fiverrAnalytics/api",adminAnalyticsRoutes)
 
 
 app.listen(process.env.PORT,()=>{
