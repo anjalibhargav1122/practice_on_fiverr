@@ -4,6 +4,7 @@ const dbConnection = require('./src/config/connection_db')
 const userrouter = require('./src/routes/userRoutes')
 const reviewRouter = require('./src/routes/reviewRoute')
 const cookieParser = require('cookie-parser')
+const reportRouter = require('./src/routes/MiscellaneousRoute')
 require('dotenv').config()
 
 const app = express()
@@ -15,6 +16,7 @@ dbConnection()
 app.use("/api/auth",reviewRouter);
 app.use('/fiverr/api',router)
 app.use('/fiverr/api',userrouter)
+app.use("/fiverr/api",reportRouter)
 
 
 app.listen(process.env.PORT,()=>{

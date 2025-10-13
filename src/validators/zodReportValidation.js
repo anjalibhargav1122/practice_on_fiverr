@@ -1,8 +1,8 @@
 const { z } = require("zod");
 
 const reportValidation = z.object({
-  user: z.string().min(24, "User ID is required"), 
-  // service: z.string().min(1, "Service ID is required"),
+  user_id: z.string().min(24, "User ID is required"), 
+  service_id: z.string().min(1, "Service ID is required"),
   reason: z
     .string()
     .trim()

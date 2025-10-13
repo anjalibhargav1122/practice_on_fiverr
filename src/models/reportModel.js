@@ -2,12 +2,12 @@ const mongoose = require("mongoose");
 
 const reportSchema = new mongoose.Schema(
   {
-    user: {
+    user_id: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
       required: [true, "User ID is required"],
     },
-    service: {
+    service_id: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Service",
       required: [true, "Service ID is required"],
