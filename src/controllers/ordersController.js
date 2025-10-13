@@ -2,6 +2,7 @@ const { success } = require('zod');
 const Order = require('../models/orders');
 const { orderValidationSchema } = require('../utils/zodOrder-validation');
 const statusCode = require('http-status-codes');
+const mongoose = require('mongoose');
 
 const createError = (message, status = 400) => {
   const error = new Error(message);
@@ -50,4 +51,54 @@ const getOrder = async (req, res) => {
   
   }
 };
-module.exports = { createOrder, getOrder };
+
+// new: get all orders for a specific user
+const getOrdersByUser = async (req, res) => {
+  try {
+    const userId = req.prams.userId;
+    if (!mongoose.Types.ObjectId.isValid(userId)) {
+      return res.status(statusCode.BAD_REQUEST).json({
+        success: false,
+        message: "Invalid user ID",
+      });
+    }
+
+    const orders = await Order.find({ user: userId });
+    return res.status(statusCode.OK).json({
+      success: true,
+      message: "Orders fetched successfully",
+      orders,
+    });
+  } catch (error) {
+    return res.status(statusCode.INTERNAL_SERVER_ERROR).json({
+      success: false,
+      message: error.message,
+    });    
+  }
+};
+
+const getOrdersByService = async (req, res) => {
+  try {
+    const serviceid = req.prams.serviceid;
+    if (!mongoose.Types.ObjectId.isValid(serviceid)){
+      return res.status(statusCode.BAD_REQUEST).json({
+        success: false,
+        message: "Invalid service ID",
+      });
+        }
+        const orders = await Order.find({ service: serviceid });
+        return res.status(statusCode.OK).json({
+          success: true,
+          message: "Orders fetched successfully",
+          orders,
+        });
+    
+  } catch (error) {
+    return res.status(statusCode.INTERNAL_SERVER_ERROR).json({
+      success: false,
+      message: error.message,
+    });
+    
+  }
+}
+module.exports = { createOrder, getOrder, getOrdersByUser, getOrdersByService };
