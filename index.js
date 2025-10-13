@@ -1,6 +1,5 @@
 const express = require('express')
-const router = require('./src/routes/orderRouter')
-const dbConnection = require('./src/config/connection_db')
+const orderRouter = require('./src/routes/orderRouter')
 // const { dbConnection } = require('./src/models/orders')
 const router = require('./src/routes/productRouter')
 const dbConnection = require('./src/config/connection_db')
@@ -12,9 +11,7 @@ require('dotenv').config()
 const app = express()
 
 app.use(express.json())
-dbConnection()
 
-app.use('/api/orders', router)
 
 app.listen(3003, () => {
     console.log('Server is running on port 3003');
@@ -22,6 +19,7 @@ app.listen(3003, () => {
 app.use(cookieParser());
 
 dbConnection()
+app.use('/api/orders', orderRouter )
 app.use("/api/auth",reviewRouter);
 app.use('/fiverr/api',router)
 app.use('/fiverr/api',userrouter)
